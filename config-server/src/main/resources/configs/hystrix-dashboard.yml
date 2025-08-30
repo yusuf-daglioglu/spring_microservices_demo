@@ -1,0 +1,7 @@
+server:
+  port: 8082
+
+turbine:
+  clusterNameExpression: new String("default")
+  appConfig: SC-SERVICE ,SC-SERVICE-CLIENT
+  combineHostPort: true 

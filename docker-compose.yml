@@ -1,0 +1,80 @@
+config-server:
+  image: app1_config-server:v1
+  hostname: "config-server"
+  ports:
+    - "8888:8888"
+
+discovery-server:
+  #build: .
+  image: app1_discovery-server:v1
+  hostname: "discovery-server"
+  ports:
+    - "8761:8761"
+
+zipkin:
+  image: app1_zipkin:v1
+  hostname: "zipkin"
+  links:
+    - "config-server:config-server"
+  ports:
+    - "9411:9411"
+  environment:
+    CONFIGSERVER_HOST: "config-server"
+    CONFIGSERVER_PORT: "8888"
+
+book-service:
+  image: app1_book-service:v1
+  hostname: "book-service"
+  links:
+    - "config-server:config-server"
+    - "discovery-server:discovery-server"
+    - "zipkin:zipkin"
+  ports:
+    - "8083:8083"
+  environment:
+    CONFIGSERVER_HOST: "config-server"
+    CONFIGSERVER_PORT: "8888"
+
+book-service-client:
+  image: app1_book-service-client:v1
+  hostname: "book-service-client"
+  links:
+    - "config-server:config-server"
+    - "discovery-server:discovery-server"
+    - "book-service:book-service"
+    - "zipkin:zipkin"
+  ports:
+    - "8081:8081"
+  environment:
+    CONFIGSERVER_HOST: "config-server"
+    CONFIGSERVER_PORT: "8888"
+
+hystrix-dashboard:
+  image: app1_hystrix-dashboard:v1
+  hostname: "hystrix-dashboard"
+  links:
+    - "config-server:config-server"
+    - "discovery-server:discovery-server"
+    - "book-service-client:book-service-client"
+    - "book-service:book-service"
+    - "zuul-proxy:zuul-proxy"
+  ports:
+    - "8082:8082"
+  environment:
+    CONFIGSERVER_HOST: "config-server"
+    CONFIGSERVER_PORT: "8888"
+
+zuul-proxy:
+  image: app1_zuul-proxy:v1
+  hostname: "zuul-proxy"
+  links:
+    - "config-server:config-server"
+    - "discovery-server:discovery-server"
+    - "book-service-client:serviceclient"
+    - "book-service:book-service"
+    - "zipkin:zipkin"
+  ports:
+    - "9999:9999"
+  environment:
+    CONFIGSERVER_HOST: "config-server"
+    CONFIGSERVER_PORT: "8888"

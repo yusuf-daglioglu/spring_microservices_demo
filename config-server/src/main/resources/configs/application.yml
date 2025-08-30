@@ -1,0 +1,28 @@
+spring:
+  zipkin:
+    baseUrl: http://localhost:9411/
+    enabled: true
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      _defaultZone: http://${eureka.instance.hostname}:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+---
+spring:
+  profiles: docker
+  zipkin:
+    enabled: true
+    baseUrl: http://zipkin:9411/
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    healthcheck:
+      enabled: true
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
